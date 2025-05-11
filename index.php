@@ -8,6 +8,24 @@
     <title>eKnjiznica</title>
 </head>
 <body>
+    <?php 
+    include_once 'db_connect.php';
+    
+    try {
+        $stmt = $conn->query("SELECT TOP 1 * FROM AVTOR");
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($row) {
+            echo "<pre>";
+            print_r($row);
+            echo "</pre>";
+        } else {
+            echo " povezano, brez podatkov.";
+        }
+    } catch (PDOException $e) {
+        echo "Padec query-ja " . $e->getMessage();
+    }
+    ?>
     <a href="index.html">
         <div class="naslov">
             <img class="glavnaSlika" src="/files/image.png" alt="naslov" srcset="">
