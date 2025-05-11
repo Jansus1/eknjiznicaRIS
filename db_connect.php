@@ -15,4 +15,4 @@ catch (PDOException $e) {
 $connectionInfo = array("UID" => "eknjiznica-sa", "pwd" => "yourStrong(!)Password", "Database" => "E-knjiznica", "LoginTimeout" => 30, "Encrypt" => 1, "TrustServerCertificate" => 0);
 $serverName = "tcp:eknjiznica-db.database.windows.net,1433";
 $conn = sqlsrv_connect($serverName, $connectionInfo);
-?> 
+?>
