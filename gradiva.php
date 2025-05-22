@@ -9,6 +9,7 @@
 </head>
 <body>
 
+
     <a href="index.php">
         <div class="naslov">
             <img class="glavnaSlika" src="files/image.png" alt="naslov" srcset="">
@@ -16,10 +17,9 @@
         </div>
     </a>
     <div class="iskanje">
-        <!-- <a class="active"href="#kjiznica">O knjižnici</a> to rata ko klikne gor (js da ga rederecta dol do tega odstavka-->
         <a href="index.php#onas">O nas</a>
         <a href="knjiznice.php">Lokacije</a>
-        <a href="gradiva.php">Gradiva</a>
+        <a class="active" href="gradiva.php">Gradiva</a>
         <a href="prijava.php">Prijava/Registracija</a>
         <div class="iskalnik">
             <form action="/action_page.php">
@@ -28,6 +28,7 @@
             </form>
           </div>
       </div>
+
 
 </body>
 </html>

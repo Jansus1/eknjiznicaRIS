@@ -9,6 +9,7 @@
 </head>
 <body>
 
+
     <a href="index.php">
         <div class="naslov">
             <img class="glavnaSlika" src="files/image.png" alt="naslov" srcset="">
@@ -16,9 +17,8 @@
         </div>
     </a>
     <div class="iskanje">
-        <!-- <a class="active"href="#kjiznica">O knjižnici</a> to rata ko klikne gor (js da ga rederecta dol do tega odstavka-->
         <a href="index.php#onas">O nas</a>
-        <a href="knjiznice.php">Lokacije</a>
+        <a class="active"href="knjiznice.php">Lokacije</a>
         <a href="gradiva.php">Gradiva</a>
         <a href="prijava.php">Prijava/Registracija</a>
         <div class="iskalnik">
@@ -28,6 +28,41 @@
             </form>
           </div>
       </div>
+
+        <div class="knjiznice">
+            <h1>Naše knjižnice</h1>
+            </br>
+            <p>Na voljo imamo več knjižnic, ki so dostopne vsem uporabnikom.</p>
+        </div>
+        </br>
+
+
+
+<?php
+include 'db_connect.php';
+$sql = "SELECT * FROM knjiznice";
+$result = mysqli_query($conn, $sql);
+
+echo "<div class='knjiznice-container'>";
+
+if (mysqli_num_rows($result) > 0) {
+    while($row = mysqli_fetch_assoc($result)) {
+        echo "<div class='knjiznica'>";
+        echo "<h2>" . $row['ime'] . "</h2>";
+        echo "<p>Telefon: " . $row['telefon'] . "</p>";
+        echo "<p>Naslov: " . $row['naslov'] . "</p>";
+        echo "<p>Elektronska pošta: " . $row['email'] . "</p>";
+        echo "</div>";
+    }
+} else {
+    echo "Ni povezave s podatkovno bazo.";
+}
+
+echo "</div>";
+
+mysqli_close($conn);
+?>
+
 
 </body>
 </html>

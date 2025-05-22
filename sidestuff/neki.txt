@@ -1,0 +1,85 @@
+VPN so danes eden glavnih mehanizmov za
+zagotavljanje varnosti, zasebnosti in dostopa do
+omejenih virov na spletu. V času covida in
+dela na daljavo so bili v porastu kibernetski na-
+padi, zaradi česar je postala uporaba VPN še
+bolj pogosta. Dober VPN omogoča vzpostavitev
+varnega, šifriranega kanala med uporabnikom in
+omrežjem ter zagotavlja varnost, zasebnost in
+zanesljivost. Kljub številnim prednostim, ki jih
+VPN ponuja, pa ni povsem odporen na napade.
+Nepravilne konfiguracije, uporaba zastarelih pro-
+tokolov in človeške napake lahko privedejo do
+varnostnih tveganj in pustijo VPN odprt za različne
+napade.
+Po pregledu osnovnih konceptov delovanja
+VPN, različnih protokolov in pogostih vrst na-
+padov smo želeli teorijo podkrepiti s praktičnim
+eksperimentom, v katerem smo rekreirali delovanje
+VPN in izvedli napad nanj. Vzpostavili smo Open-
+VPN povezavo med navideznima napravama ter
+izvedli napad s ponarejanjem ARP, kar nam je
+omogočilo rekreiranje napada s posrednikom. Ta
+napad je pokazal, da zaradi napačne konfiguracije
+VPN, v tem primeru brez šifriranja in avten-
+tikacije, podatki v tunelu potujejo v nešifrirani
+obliki, kar napadalcu omogoča popoln vpogled
+v komunikacijo med napravama. To pomeni, da
+že osnovne pomanjkljivosti v konfiguraciji lahko
+povzročijo popolno razkritje podatkov. Za tem smo
+vzpostavili pravilno konfiguracijo VPN z uporabo
+sodobnih varnostnih mehanizmov, kot so TLS av-
+tentikacija, certifikati, šifriranje z AES-256-GCM
+ter preverjanje integritete z uporabo SHA512. Po
+ponovitvi ARP napada v tem varnem okolju smo
+ugotovili, da je promet kljub prestrezanju ostal
+šifriran, vsebina podatkov pa neberljiva in s tem
+zaščitena. S tem smo pokazali, da je ustrezna
+konfiguracija ključna za varnost VPN povezave
+in da so varnostne funkcije, kot so certifikati,
+šifriranje in TLS preverjanje, nujne komponente
+za odpornost VPN proti napadom.
+Na podlagi analize realnih napadov iz prakse,
+kot so vdori v Ivanti Pulse Secure VPN, Fortinet
+SSL VPN, Fortinet SSL VPN in napad na omrežje
+Viasat, in naše simulacije lahko sklepamo, da
+je varnost VPN močno odvisna od konfiguracije
+in ne le od izbrane tehnologije. Napačne nas-
+tavitve, uporaba zastarelih protokolov ali poman-
+jkanje šifriranja omogočajo napadalcem vstopne
+točke v sisteme, kar lahko vodi do kraje poverilnic,
+podatkov ali celo do obsežnih motenj delovanja
+celotnih organizacij.
+Zato je za učinkovito uporabo VPN ključno, da
+skrbniki in uporabniki razumejo temeljna načela
+delovanja, se izogibajo slabim praksam, redno
+posodabljajo programsko opremo in uporabl-
+jajo ustrezne varnostne protokole. Zavedanje o
+možnostih napadov in poznavanje posledic na-
+pačnih konfiguracij je bistvenega pomena za dol-
+goročno zaščito informacijskih sistemov.
+Kljub pridobljenim ugotovitvam pa na področju
+VPN še vedno ostaja veliko izzivov. Ena od
+pomembnih smeri prihodnjega dela je avtom-
+atizirano preverjanje konfiguracij VPN, saj so
+človeške napake pri VPN ena najpogostejših šibkih
+točk. Potrebno je tudi boljše izobraževanje končnih
+uporabnikov o nevarnostih, kot so phishing napadi,
+saj lahko napadalci obidejo še tako dobro zaščiten
+VPN, če pridobijo dostop do uporabniških poverilnic. Prav tako bi bilo smiselno raziskati napredne
+metode zaznavanja in preprečevanja napadov s
+posrednikom v realnem času, pa tudi vključevanje
+umetne inteligence za dinamično odzivanje na
+sumljivo vedenje v VPN prometu. Varnost VPN
+bo morala v prihodnje slediti tudi razvoju kvant-
+nega računalništva, ki lahko v prihodnosti ogrozi
+trenutno uporabljene kriptografske protokole.
+Za zdaj VPN ostaja eden najvarnejših in na-
+jbolj razširjenih mehanizmov za zaščito om-
+režnih povezav. Ob pravilni konfiguraciji in pre-
+mišljeni uporabi lahko učinkovito zaščiti za-
+sebnost, podatke in komunikacijo uporabnikov
+pred večino sodobnih groženj. Vendar ta varnost
+ni samoumevna, saj zahteva redno vzdrževanje,
+posodabljanje ter zavedanje o tveganjih, ki so del
+digitalnega okolja.
