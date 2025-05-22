@@ -34,14 +34,11 @@ include 'db_connect.php';
 
 $sql = "
     SELECT 
-        g.naslov,
-        g.email,
-        k.ime AS imeGradiva,
+        g.ime as imeGradiva,
         z.ime AS imeZalozbe,
         a.ime AS imeAvtorja,
         a.priimek AS priimekAvtorja
     FROM gradiva g
-    JOIN KNJIZNICE k ON g.idGradiva = k.idKnjiznice
     JOIN ZALOZBA z ON g.idZalozba = z.idZalozba
     JOIN AVTOR a ON g.idAvtor = a.idAvtor
 ";
