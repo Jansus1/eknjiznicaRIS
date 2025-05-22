@@ -1,3 +1,6 @@
+<?php
+session_start();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,7 +23,11 @@
         <a href="index.php#onas">O nas</a>
         <a href="knjiznice.php">Lokacije</a>
         <a class="active" href="gradiva.php">Gradiva</a>
-        <a href="prijava.php">Prijava/Registracija</a>
+        <?php if (isset($_SESSION["user"])): ?>
+            <a href="profil.php">Profile (<?= htmlspecialchars($_SESSION["user"]["ime"]) ?>)</a>
+        <?php else: ?>
+            <a href="prijava.php">Prijava / Registracija</a>
+        <?php endif; ?>
         <div class="iskalnik">
             <form action="/action_page.php">
               <input type="text" placeholder="Išči.." name="search">
@@ -28,9 +35,9 @@
             </form>
           </div>
       </div>
+
 <?php
 include 'db_connect.php';
-#$sql = "SELECT * FROM gradiva";
 
 $sql = "
     SELECT 

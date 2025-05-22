@@ -16,7 +16,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["login"])) {
             $_SESSION["user"] = [
             "id" => $user["idClan"],
             "ime" => $user["ime"],
-            "uporabniskoIme" => $user["uporabniskoIme"]
+            "priimek" => $user["priimek"],
+            "uporabniskoIme" => $user["uporabniskoIme"],
+            "email" => $user["email"]
             ];
             header("Location: index.php");
             exit;
@@ -24,7 +26,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["login"])) {
             echo "Napačno uporabniško ime ali geslo.";
         }
     }
-    else {
+    elseif($_POST["login"] == "1") {
         $ime = $_POST["ime"];
         $priimek = $_POST["priimek"];
         $naslov = $_POST["naslov"];
@@ -56,6 +58,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["login"])) {
         }
 
         $stmt->close();
+    }
+    else {
+        session_unset();
+        session_destroy();
+        header("Location: index.php");
+        exit;
     }
 }
 ?>
