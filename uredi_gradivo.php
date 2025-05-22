@@ -6,11 +6,10 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_SESSION["user"])) {
     header('Location: index.php');
     exit;
 }
-
+$idGradiva     = (int) ($_POST['idGradiva'] ?? -1);
 $title         = trim($_POST['title'] ?? '');
 $materialType  = $_POST['material_type'] ?? '';
 $libraryId     = (int) ($_POST['library_id'] ?? 0);
-$publisherId   = (int) ($_POST['publisher_id'] ?? 0);
 $authorId      = (int) ($_POST['author_id'] ?? 0);
 $coverImageUrl = trim($_POST['cover_image'] ?? '');
 $amount        = (int) ($_POST['amount'] ?? 0);
@@ -24,11 +23,11 @@ if ($title === '') {
 if (!in_array($materialType, ['knjiga','časopis','dvd','usb'], true)) {
     $errors[] = 'Neveljaven tip gradiva.';
 }
+if ($idGradiva <= -1) {
+    $errors[] = 'Napaka pri izbiri gradiva.';
+}
 if ($libraryId <= 0) {
     $errors[] = 'Izberite knjižnico.';
-}
-if ($publisherId <= 0) {
-    $errors[] = 'Prišlo je do napake z založbo.';
 }
 if ($authorId <= 0) {
     $errors[] = 'Izberite avtorja.';
@@ -46,47 +45,49 @@ if (count($errors) > 0) {
 }
 
 $stmt = $conn->prepare(
-    "INSERT INTO gradiva 
-      (ime, tipGradiva, idKnjiznice, idZalozba, idAvtor, slika, opis)
-     VALUES (?, ?, ?, ?, ?, ?, ?)"
+    "UPDATE gradiva 
+     SET 
+        ime        = ?,
+        tipGradiva = ?,
+        idKnjiznice= ?,
+        idAvtor    = ?,
+        slika      = ?,
+        opis       = ?
+     WHERE idGradiva = ?"
 );
 $stmt->bind_param(
-    'ssiiiss',
+    'ssiissi',
     $title,
     $materialType,
     $libraryId,
-    $publisherId,
     $authorId,
     $coverImageUrl,
-    $description
+    $description,
+    $idGradiva
 );
 
 if ($stmt->execute()) {
-    $newGradivaId = $conn->insert_id;
-
-    $availStmt = $conn->prepare(
-        "INSERT INTO razpolozljivost
-            (idGradiva, idKnjiznice, status, steviloGradiv, steviloIzposojenih, steviloRezerviranih)
-         VALUES (?, ?, ?, ?, 0, 0)"
+    $stmta = $conn->prepare(
+        "UPDATE razpolozljivost 
+        SET
+        steviloGradiv = ?
+        WHERE idGradiva = ?"
     );
-
-    $initialCount = $amount;
-    $status = 'Prosto';
-
-    $availStmt->bind_param(
-        'iisi',
-        $newGradivaId,
-        $libraryId,
-        $status,
-        $initialCount
+    $stmta->bind_param(
+        "ii",
+        $amount,
+        $idGradiva
     );
-
-    if (!$availStmt->execute()) {
-        error_log("Napaka pri vnosu za razpolozljivost: " . $availStmt->error);
+    if ($stmta->execute()) {
+        header('Location: gradiva.php');
+        exit;
     }
-
-    header('Location: gradiva.php?added=1');
-    exit;
+    else{
+        echo '<p style="color:red;">Napaka pri vstavljanju podatkov: '
+         . htmlspecialchars($stmt->error) . '</p>';
+        echo '<p><a href="zalozba.php">Poskusi znova</a></p>';
+        exit;
+    }
 } else {
     echo '<p style="color:red;">Napaka pri vstavljanju podatkov: '
          . htmlspecialchars($stmt->error) . '</p>';

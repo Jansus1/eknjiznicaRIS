@@ -18,7 +18,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["login"])) {
             "ime" => $user["ime"],
             "priimek" => $user["priimek"],
             "uporabniskoIme" => $user["uporabniskoIme"],
-            "email" => $user["email"]
+            "email" => $user["email"],
+            "tipUporabnika" => $user["tipUporabnika"]
             ];
             header("Location: index.php");
             exit;
@@ -26,7 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["login"])) {
             echo "Napačno uporabniško ime ali geslo.";
         }
     }
-    elseif($_POST["login"] == "1") {
+    elseif($_POST["login"] == "0") {
         $ime = $_POST["ime"];
         $priimek = $_POST["priimek"];
         $naslov = $_POST["naslov"];
@@ -41,20 +42,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["login"])) {
         $hashedPassword = password_hash($geslo, PASSWORD_DEFAULT);
 
         $stmt = $conn->prepare("INSERT INTO clan 
-            (uporabniskoIme, geslo, ime, priimek, naslov, email, izposoje, clanarina, jeKnjiznicar) 
+            (uporabniskoIme, geslo, ime, priimek, naslov, email, izposoje, clanarina, tipUporabnika) 
             VALUES (?, ?, ?, ?, ?, ?, 0, 0, 0)");
         $stmt->bind_param("ssssss", $uporabniskoIme, $hashedPassword, $ime, $priimek, $naslov, $email);
 
         if ($stmt->execute()) {
+            $idClan = $conn->insert_id;
             $_SESSION["user"] = [
-            "id" => $user["idClan"],
-            "ime" => $user["ime"],
-            "uporabniskoIme" => $user["uporabniskoIme"]
+            "id" => $idClan,
+            "ime" => $ime,
+            "priimek" => $priimek,
+            "uporabniskoIme" => $uporabniskoIme,
+            "email" => $email
             ];
             header("Location: index.php");
             exit;
         } else {
-            echo "Napaka pri registraciji: " . $stmt->error;
+            echo "Uporabniško ime ali email že obstaja.";
+            exit;
         }
 
         $stmt->close();

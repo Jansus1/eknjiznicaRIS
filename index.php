@@ -24,6 +24,9 @@ session_start();
         <a href="gradiva.php">Gradiva</a>
         <?php if (isset($_SESSION["user"])): ?>
             <a href="profil.php">Profile (<?= htmlspecialchars($_SESSION["user"]["ime"]) ?>)</a>
+            <?php if (isset($_SESSION["user"]["tipUporabnika"]) && $_SESSION["user"]["tipUporabnika"] === 1): ?>
+                <a href="zalozba.php">Zalozba</a>
+            <?php endif; ?>
         <?php else: ?>
             <a href="prijava.php">Prijava / Registracija</a>
         <?php endif; ?>

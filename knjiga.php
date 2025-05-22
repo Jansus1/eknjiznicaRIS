@@ -1,3 +1,7 @@
+<?php
+include 'db_connect.php';
+session_start();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,28 +10,8 @@
     <link rel="stylesheet" href="files/stylesheet.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <title>eKnjiznica</title>
-      <style>
-    .knjiga-container {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      padding: 20px;
-      max-width: 800px;
-      margin: auto;
-    }
-    .knjiga-container > img {
-      width: 350px;
-      height: auto;
-      border-radius: 8px;
-    }
-    .knjiga-container > .text {
-      font-size: 18px;
-    }
-  </style>
 </head>
 <body>
-
-
     <a href="index.php">
         <div class="naslov">
             <img class="glavnaSlika" src="files/image.png" alt="naslov" srcset="">
@@ -38,7 +22,14 @@
         <a href="index.php#onas">O nas</a>
         <a href="knjiznice.php">Lokacije</a>
         <a href="gradiva.php">Gradiva</a>
-        <a href="prijava.php">Prijava/Registracija</a>
+        <?php if (isset($_SESSION["user"])): ?>
+            <a href="profil.php">Profile (<?= htmlspecialchars($_SESSION["user"]["ime"]) ?>)</a>
+            <?php if (isset($_SESSION["user"]["tipUporabnika"]) && $_SESSION["user"]["tipUporabnika"] === 1): ?>
+                <a href="zalozba.php">Zalozba</a>
+            <?php endif; ?>
+        <?php else: ?>
+            <a href="prijava.php">Prijava / Registracija</a>
+        <?php endif; ?>
         <div class="iskalnik">
             <form action="/action_page.php">
               <input type="text" placeholder="Išči.." name="search">
@@ -46,15 +37,13 @@
             </form>
           </div>
       </div>
-
     <br/>
-    
 <?php
-include 'db_connect.php';
 
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     $id = intval($_GET['id']);
-} else {
+}
+else {
     echo "<div class='knjiga-container'>";
     echo "<img src='https://static.s4be.cochrane.org/app/uploads/2017/04/shutterstock_531145954.jpg' alt='Error image'>";
     echo "<div class='text'>";
@@ -64,41 +53,84 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     exit;
 }
     
-    // Now use $id safely in your SQL
-    #$sql = "SELECT * FROM gradiva WHERE idGradiva = $id";
-    $sql = "SELECT 
-            g.*, 
-            a.ime AS imeAvtor, 
-            a.priimek AS priimekAvtor,
-            z.ime AS imeZalozbe
-            FROM 
-            gradiva g
-            JOIN 
-            Avtor a ON g.idAvtor = a.idAvtor
-            JOIN 
-            Zalozba z ON g.idZalozba = z.idZalozba
-            WHERE 
-            g.idGradiva = $id";
-    $result = mysqli_query($conn, $sql);
-    if (mysqli_num_rows($result) > 0) {
-            while($row = mysqli_fetch_assoc($result)) {
-            echo "<div class='knjiga-container'>";
-            echo "<h2>" . $row['ime'] . "</h2>";
-            echo "<h3>" . $row['imeAvtor'] . $row['priimekAvtor'] ."</h3>";   
-            echo "<h4>" . $row['imeZalozbe'] . "</h4>";
-            echo "<br/>";
-            echo "<p>Opis " . $row['opis'] . "</p>";
-            echo "<br/>";
-            echo "<h3>Tip Gradiva: " . $row['tipGradiva'] . "</p>";
-            echo "</div>";
-            }
-        }  else {
-    echo "<div class='knjiga-container'>";
-    echo "<img src='https://static.s4be.cochrane.org/app/uploads/2017/04/shutterstock_531145954.jpg' alt='Error image'>";
-    echo "<div class='text'>";
-    echo "<h2>Prišlo je do napake :(</h2>";
-    echo "Ni povezave s podatkovno bazo.";
+$sql = "SELECT 
+        g.*, 
+        a.ime AS imeAvtor, 
+        a.priimek AS priimekAvtor,
+        c.ime AS imeZalozbe
+        FROM 
+        gradiva g
+        JOIN 
+        Avtor a ON g.idAvtor = a.idAvtor
+        JOIN 
+        Clan c ON g.idZalozba = c.idClan
+        WHERE 
+        g.idGradiva = $id";
 
+$result = mysqli_query($conn, $sql);
+
+if (mysqli_num_rows($result) > 0) {
+        while($row = mysqli_fetch_assoc($result)) {
+            echo "<div class='knjiga-container'>";
+            if (!empty($row['ime'])) {
+                echo "<h2 class='knjiga-title'>" . htmlspecialchars($row['ime']) . "</h2>";
+            }
+
+            $authorFull = trim($row['imeAvtor'] . ' ' . $row['priimekAvtor']);
+            if (!empty($authorFull)) {
+                echo "<h3 class='knjiga-author'>" . htmlspecialchars($authorFull) . "</h3>";
+            }
+
+            if (!empty($row['imeZalozbe'])) {
+                echo "<h4 class='knjiga-publisher'>" . htmlspecialchars($row['imeZalozbe']) . "</h4>";
+            }
+
+            if (!empty($row['opis'])) {
+                echo "<p class='knjiga-description'>" . trim(htmlspecialchars($row['opis'])) . "</p>";
+            }
+
+            if (!empty($row['tipGradiva'])) {
+                echo "<p class='knjiga-type'><strong>Tip gradiva:</strong> " . htmlspecialchars($row['tipGradiva']) . "</p>";
+            }
+            echo "</div>";
+
+            if (
+                isset($_SESSION["user"]["tipUporabnika"])
+                && $_SESSION["user"]["tipUporabnika"] === 2
+            ) {
+                echo "<div class='knjiga-actions'>";
+                echo "<a href='urejaj_gradivo.php?id={$row['idGradiva']}' class='btn btn-edit'>Uredi</a>";
+                echo "<form method='POST' action='odstrani_gradivo.php' style='display:inline;'>
+                        <input type='hidden' name='idGradiva' value='{$row['idGradiva']}'>
+                        <button type='submit' class='btn btn-delete'>Izbriši</button>
+                    </form>";
+                echo "</div>";
+
+            } elseif (
+                isset($_SESSION["user"]["tipUporabnika"])
+                && $_SESSION["user"]["tipUporabnika"] === 0
+            ) {
+                echo "<div class='knjiga-actions'>";
+                echo "<form method='POST' action='izposodi_gradivo.php' style='display:inline;'>
+                        <input type='hidden' name='idGradiva' value='{$row['idGradiva']}'>
+                        <button type='submit' class='btn btn-borrow'>Izposodi</button>
+                    </form>";
+                echo "<form method='POST' action='rezerviraj_gradivo.php' style='display:inline; margin-left:8px;'>
+                        <input type='hidden' name='idGradiva' value='{$row['idGradiva']}'>
+                        <button type='submit' class='btn btn-reserve'>Rezerviraj</button>
+                    </form>";
+                echo "</div>";
+            }
+        }
+    }  else {
+    echo "<div class='knjiga-container'>";
+        echo "<img src='…'>";
+        echo "<div class='text'>";
+        echo "<h2>Prišlo je do napake :(</h2>";
+        echo "<p>Napačen ID knjige.</p>";
+        echo "</div>";
+    echo "</div>";
+    echo "</body></html>";
     exit;
 }
 ?>

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 22, 2025 at 06:05 PM
+-- Generation Time: May 22, 2025 at 08:45 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -18,8 +18,8 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
-CREATE DATABASE eknjiznica;
-use eknjiznica;
+CREATE DATABASE eknjiznica2;
+use eknjiznica2;
 --
 
 -- --------------------------------------------------------
@@ -58,7 +58,7 @@ CREATE TABLE `clan` (
   `email` varchar(255) NOT NULL,
   `izposoje` varchar(20) NOT NULL,
   `clanarina` tinyint(1) NOT NULL,
-  `jeKnjiznicar` tinyint(1) NOT NULL
+  `tipUporabnika` int(11) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -74,7 +74,8 @@ CREATE TABLE `gradiva` (
   `idKnjiznice` int(11) NOT NULL,
   `idZalozba` int(11) DEFAULT NULL,
   `idAvtor` int(11) DEFAULT NULL,
-  `slika` varchar(255) DEFAULT NULL
+  `slika` varchar(255) DEFAULT NULL,
+  `opis` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -253,7 +254,7 @@ ALTER TABLE `zalozba`
 -- Constraints for table `gradiva`
 --
 ALTER TABLE `gradiva`
-  ADD CONSTRAINT `gradiva_ibfk_1` FOREIGN KEY (`idZalozba`) REFERENCES `zalozba` (`idZalozba`),
+  ADD CONSTRAINT `gradiva_ibfk_1` FOREIGN KEY (`idZalozba`) REFERENCES `clan` (`idClan`),
   ADD CONSTRAINT `gradiva_ibfk_2` FOREIGN KEY (`idKnjiznice`) REFERENCES `knjiznice` (`idKnjiznice`),
   ADD CONSTRAINT `gradiva_ibfk_3` FOREIGN KEY (`idAvtor`) REFERENCES `avtor` (`idAvtor`);
 

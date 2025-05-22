@@ -1,7 +1,7 @@
 <?php
 session_start();
 if (!isset($_SESSION["user"])) {
-    header("Location: login.php");
+    header("Location: prijava.php");
     exit;
 }
 ?>
@@ -25,6 +25,9 @@ if (!isset($_SESSION["user"])) {
         <a href="index.php#onas">O nas</a>
         <a href="knjiznice.php">Lokacije</a>
         <a href="gradiva.php">Gradiva</a>
+        <?php if (isset($_SESSION["user"]["tipUporabnika"])): ?>
+            <a href="zalozba.php">Zalozba</a>
+        <?php endif; ?>
         <div class="iskalnik">
             <form action="/action_page.php">
                 <input type="text" placeholder="Išči.." name="search">

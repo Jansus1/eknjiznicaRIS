@@ -26,6 +26,31 @@ if ($res = $conn->query("SELECT idKnjiznice, ime FROM knjiznice")) {
     }
     $res->free();
 }
+
+$materialId = $_REQUEST['id'] ?? null;
+if (!$materialId || !is_numeric($materialId)) {
+    die('Neveljaven ID gradiva.');
+}
+
+$stmt = $conn->prepare("
+    SELECT g.*, r.steviloGradiv, r.status
+    FROM gradiva g
+    JOIN razpolozljivost r ON g.idGradiva = r.idGradiva
+    WHERE g.idGradiva = ?
+");
+$stmt->bind_param('i', $materialId);
+$stmt->execute();
+$row = $stmt->get_result()->fetch_assoc();
+$currentLibraryName = '';
+foreach ($libraries as $lib) {
+    if ($lib['id'] === (int)$row['idKnjiznice']) {
+        $currentLibraryName = $lib['name'];
+        break;
+    }
+}
+if (!$row) {
+    die('Gradivo ni najdeno.');
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -64,60 +89,79 @@ if ($res = $conn->query("SELECT idKnjiznice, ime FROM knjiznice")) {
     </div>
 
     <div class="vsebina">
-        <h2 class="vsebina-title">
-            Dobrodošli, založba <?= htmlspecialchars($_SESSION["user"]["ime"]) ?>!
-        </h2>
-        <p class="vsebina-paragraph">Tukaj lahko dodajate gradiva.</p>
-        <form method="POST" action="dodaj_gradivo.php">
-            <input type="hidden" name="publisher_id" value="<?= (int)$_SESSION["user"]["id"] ?>">
-
+        <p class="vsebina-paragraph">Tukaj lahko urejate gradivo.</p>
+        <form method="POST" action="uredi_gradivo.php">
+            <input type="hidden" name="idGradiva" value="<?= $materialId ?>">
             <label for="title">Ime gradiva</label>
-            <input type="text" id="title" name="title" placeholder="Naslov gradiva" required><br>
+            <input
+            type="text" id="title" name="title"
+            value="<?= htmlspecialchars($row['ime']) ?>"
+            required
+            ><br>
 
             <label for="author_id">Avtor</label>
             <div class="search-wrapper">
-            <input type="text" class="search-input" data-target="author_id" placeholder="Išči avtorja…">
+            <input type="text" class="search-input" data-target="author_id" value="" placeholder="Išči avtorja…">
             <select id="author_id" name="author_id" class="searchable-select" required>
-                <option value="" disabled selected>Izberite avtorja</option>
+                <option value="" disabled>Izberite avtorja</option>
                 <?php foreach ($authors as $author): ?>
-                    <option value="<?= $author['id'] ?>"><?= htmlspecialchars($author['name']) ?></option>
+                <option
+                    value="<?= $author['id'] ?>"
+                    <?= $author['id']==$row['idAvtor']?'selected':'' ?>
+                ><?= htmlspecialchars($author['name']) ?></option>
                 <?php endforeach; ?>
             </select>
             </div>
 
             <label for="material_type">Tip gradiva</label>
             <select id="material_type" name="material_type" required>
-                <option value="knjiga">Knjiga</option>
-                <option value="časopis">Časopis</option>
-                <option value="dvd">DVD</option>
-                <option value="usb">USB</option>
+            <option value="knjiga" <?= $row['tipGradiva']=='knjiga'?'selected':'' ?>>Knjiga</option>
+            <option value="časopis" <?= $row['tipGradiva']=='časopis'?'selected':'' ?>>Časopis</option>
+            <option value="dvd" <?= $row['tipGradiva']=='dvd'?'selected':'' ?>>DVD</option>
+            <option value="usb" <?= $row['tipGradiva']=='usb'?'selected':'' ?>>USB</option>
             </select><br>
 
             <label for="library_id">Za knjižnico</label>
             <div class="search-wrapper">
-            <input type="text" class="search-input" data-target="library_id" placeholder="Išči knjižnico…">
+            <input 
+                type="text" 
+                class="search-input" 
+                data-target="library_id" 
+                value=""
+                placeholder="Išči knjižnico…"
+            >
             <select id="library_id" name="library_id" class="searchable-select" required>
-                <option value="" disabled selected>Izberite knjižnico</option>
+                <option value="" disabled>Izberite knjižnico</option>
                 <?php foreach ($libraries as $library): ?>
-                    <option value="<?= $library['id'] ?>"><?= htmlspecialchars($library['name']) ?></option>
+                <option
+                    value="<?= $library['id'] ?>"
+                    <?= $library['id'] == $row['idKnjiznice'] ? 'selected' : '' ?>
+                >
+                    <?= htmlspecialchars($library['name']) ?>
+                </option>
                 <?php endforeach; ?>
             </select>
             </div>
 
-            <label for="title">Število gradiv</label>
-            <input type="number" min="1" id="amount" name="amount" placeholder="Število gradiv" required><br>
+            <label for="amount">Število gradiv</label>
+            <input
+            type="number" min="1" id="amount" name="amount"
+            value="<?= (int)$row['steviloGradiv'] ?>"
+            required
+            ><br>
 
             <label for="cover_image">Povezava do slike</label>
-            <input type="url" id="cover_image" name="cover_image" placeholder="https://…"><br>
+            <input
+            type="url" id="cover_image" name="cover_image"
+            value="<?= htmlspecialchars($row['slika']) ?>"
+            ><br>
+
             <label for="description">Opis gradiva</label><br>
-            <textarea 
-                id="description" 
-                name="description" 
-                class="opis-textarea" 
-                placeholder="Vnesite opis gradiva…" 
-                rows="6" 
-                required
-            ></textarea><br>
+            <textarea
+            id="description" name="description" class="opis-textarea"
+            rows="6" required
+            ><?= htmlspecialchars($row['opis']) ?></textarea><br>
+
             <input type="submit" value="Shrani spremembe">
         </form>
     </div>

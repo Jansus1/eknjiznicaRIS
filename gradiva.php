@@ -25,6 +25,9 @@ session_start();
         <a class="active" href="gradiva.php">Gradiva</a>
         <?php if (isset($_SESSION["user"])): ?>
             <a href="profil.php">Profile (<?= htmlspecialchars($_SESSION["user"]["ime"]) ?>)</a>
+            <?php if (isset($_SESSION["user"]["tipUporabnika"]) && $_SESSION["user"]["tipUporabnika"] === 1): ?>
+                <a href="zalozba.php">Zalozba</a>
+            <?php endif; ?>
         <?php else: ?>
             <a href="prijava.php">Prijava / Registracija</a>
         <?php endif; ?>
@@ -41,12 +44,14 @@ include 'db_connect.php';
 
 $sql = "
     SELECT 
+        g.idGradiva as idGradiva,
         g.ime as imeGradiva,
-        z.ime AS imeZalozbe,
+        c.ime AS imeZalozbe,
         a.ime AS imeAvtorja,
-        a.priimek AS priimekAvtorja
+        a.priimek AS priimekAvtorja,
+        g.tipGradiva as tipGradiva
     FROM gradiva g
-    JOIN ZALOZBA z ON g.idZalozba = z.idZalozba
+    JOIN Clan c ON g.idZalozba = c.idClan
     JOIN AVTOR a ON g.idAvtor = a.idAvtor
 ";
 
@@ -59,9 +64,9 @@ if (mysqli_num_rows($result) > 0) {
         echo "<div class='knjiznica'>";
         echo "<a href='knjiga.php?id=" . $row['idGradiva'] . "'>";
         echo "<h2>" . $row['imeGradiva'] . "</h2>";
-        echo "<p>" . $row['imeAvtorja'] . " " . $row['priimekAvtor'] . "</p>";
+        echo "<p>" . $row['imeAvtorja'] . " " . $row['priimekAvtorja'] . "</p>";
         echo "<p>Zalozba: " . $row['imeZalozbe'] . "</p>";
-        echo "<p>Tip gradiva " . $row['tipGradiva'] . "</p>";
+        echo "<p>Tip gradiva: " . $row['tipGradiva'] . "</p>";
         echo "</div>";
         echo "</a>";
     }
