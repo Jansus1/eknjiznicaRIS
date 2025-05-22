@@ -1,3 +1,6 @@
+<?php
+session_start();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,7 +11,6 @@
     <title>eKnjiznica</title>
 </head>
 <body>
-
     <a href="index.php">
         <div class="naslov">
             <img class="glavnaSlika" src="files/image.png" alt="naslov" srcset="">
@@ -20,14 +22,17 @@
         <a href="index.php#onas">O nas</a>
         <a href="knjiznice.php">Lokacije</a>
         <a href="gradiva.php">Gradiva</a>
-        <a href="prijava.php">Prijava/Registracija</a>
+        <?php if (isset($_SESSION["user"])): ?>
+            <a href="profile.php">Profile (<?= htmlspecialchars($_SESSION["user"]["ime"]) ?>)</a>
+        <?php else: ?>
+            <a href="prijava.php">Prijava / Registracija</a>
+        <?php endif; ?>
         <div class="iskalnik">
             <form action="/action_page.php">
-              <input type="text" placeholder="Išči.." name="search">
-              <button type="submit"><i class="fa fa-search" aria-hidden="true"></i></button>
+                <input type="text" placeholder="Išči.." name="search">
+                <button type="submit"><i class="fa fa-search" aria-hidden="true"></i></button>
             </form>
-          </div>
-      </div>
-
+        </div>
+    </div>
 </body>
 </html>
