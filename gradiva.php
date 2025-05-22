@@ -28,7 +28,47 @@
             </form>
           </div>
       </div>
+<?php
+include 'db_connect.php';
+#$sql = "SELECT * FROM gradiva";
 
+$sql = "
+    SELECT 
+        g.naslov,
+        g.email,
+        k.ime AS imeGradiva,
+        z.ime AS imeZalozbe,
+        a.ime AS imeAvtorja,
+        a.priimek AS priimekAvtorja
+    FROM gradiva g
+    JOIN KNJIZNICE k ON g.idGradiva = k.idKnjiznice
+    JOIN ZALOZBA z ON g.idZalozba = z.idZalozba
+    JOIN AVTOR a ON g.idAvtor = a.idAvtor
+";
+
+$result = mysqli_query($conn, $sql);
+
+echo "<div class='knjiznice-container'>";
+
+if (mysqli_num_rows($result) > 0) {
+    while($row = mysqli_fetch_assoc($result)) {
+        echo "<div class='knjiznica'>";
+        echo "<a href='knjiga.php?id=" . $row['idGradiva'] . "'>";
+        echo "<h2>" . $row['imeGradiva'] . "</h2>";
+        echo "<p>" . $row['imeAvtorja'] . " " . $row['priimekAvtor'] . "</p>";
+        echo "<p>Zalozba: " . $row['imeZalozbe'] . "</p>";
+        echo "<p>Tip gradiva " . $row['tipGradiva'] . "</p>";
+        echo "</div>";
+        echo "</a>";
+    }
+} else {
+    echo "Ni povezave s podatkovno bazo.";
+}
+
+echo "</div>";
+
+mysqli_close($conn);
+?>
 
 </body>
 </html>
