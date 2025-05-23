@@ -25,7 +25,7 @@ if (!isset($_SESSION["user"])) {
         <a href="index.php#onas">O nas</a>
         <a href="knjiznice.php">Lokacije</a>
         <a href="gradiva.php">Gradiva</a>
-        <?php if (isset($_SESSION["user"]["tipUporabnika"])): ?>
+        <?php if (isset($_SESSION["user"]["tipUporabnika"]) && $_SESSION["user"]["tipUporabnika"] === 1): ?>
             <a href="zalozba.php">Zalozba</a>
         <?php endif; ?>
         <div class="iskalnik">

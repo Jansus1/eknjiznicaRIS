@@ -52,7 +52,7 @@ else {
 
     exit;
 }
-    
+
 $sql = "SELECT 
         g.*, 
         a.ime AS imeAvtor, 

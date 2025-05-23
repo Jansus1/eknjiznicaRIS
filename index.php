@@ -50,6 +50,9 @@ session_start();
         </ul>
         <p class="vsebina-paragraph">Na spletišču in v aplikaciji boste našli tudi pregled lokacij vseh knjižnic, delovni čas, kontaktne podatke in posebne dogodke. Za knjižničarje in zaposlene pa so na voljo dodatna orodja za hitro urejanje gradiva, evidentiranje zamud in upravljanje članstva.</p>
         <p class="vsebina-paragraph">Ne glede na to, ali ste redni obiskovalec, nov član ali gost – eKnjiznica vam omogoča intuitiven dostop do bogatega knjižničnega gradiva 24/7, kjerkoli že ste.</p>
+        <?php if (!isset($_SESSION["user"])): ?>
+            <a href="prijava.php" class="btn btn-edit">Prijava / Registracija</a>
+        <?php endif; ?>
     </div>
 </body>
 </html>
