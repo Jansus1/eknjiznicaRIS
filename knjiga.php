@@ -121,6 +121,41 @@ if (mysqli_num_rows($result) > 0) {
                     </form>";
                 echo "</div>";
             }
+            elseif (
+                isset($_SESSION["user"]["tipUporabnika"])
+                && $_SESSION["user"]["tipUporabnika"] === 1
+            ) {
+                echo "<div class='knjiga-actions'>";
+                echo "<form method='POST' action='izposodi_gradivo.php' style='display:inline;'>
+                        <input type='hidden' name='idGradiva' value='{$row['idGradiva']}'>
+                        <button type='submit' class='btn btn-borrow'>Izposodi</button>
+                    </form>";
+                echo "<form method='POST' action='rezerviraj_gradivo.php' style='display:inline; margin-left:8px;'>
+                        <input type='hidden' name='idGradiva' value='{$row['idGradiva']}'>
+                        <button type='submit' class='btn btn-reserve'>Rezerviraj</button>
+                    </form>";
+                    $knjizniceQuery = mysqli_query($conn, "SELECT idKnjiznice, ime FROM knjiznice");
+                    echo "<form method='POST' action='upravljaj_gradivo.php'>";
+                    echo "<input type='hidden' name='idGradiva' value='{$row['idGradiva']}'>";
+                    echo "<label for='idKnjiznice'>Knjižnica: </label>";
+                    
+                    echo "<select name='idKnjiznice' required>";
+                    while ($knjiznica = mysqli_fetch_assoc($knjizniceQuery)) {
+                        echo "<option value='{$knjiznica['idKnjiznice']}'>{$knjiznica['ime']}</option>";
+                    }
+                    echo "</select>";
+
+                    echo "<label for='stevilo'>Število enot:</label>";
+                    echo "<input type='number' name='stevilo' value='1' required min='1' style='width: 60px;'>";
+
+                    // Gumb dodaj
+                    echo "<button type='submit' name='action' value='dodaj' class='btn btn-add' style='margin-left: 5px;'>Dodaj</button>";
+
+                    // Gumb zbriši
+                    echo "<button type='submit' name='action' value='zbriši' class='btn btn-remove' style='margin-left: 5px;'>Zbriši</button>";
+                    echo "</form>";
+                echo "</div>";
+            }
         }
     }  else {
     echo "<div class='knjiga-container'>";
