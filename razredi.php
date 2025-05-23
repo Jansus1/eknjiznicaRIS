@@ -2,9 +2,10 @@
 //require_once 'vendor/autoload.php';
 require_once 'db_connect.php';
 
-
 //use PHPMailer\PHPMailer\PHPMailer;
 //use PHPMailer\PHPMailer\Exception;
+
+//Turn these publics to private!
 
 class Clan {
     public $idClan;
@@ -38,11 +39,12 @@ class Clan {
 }
 
 class ZMUporabnikIzposodiGradivo{
-    $idClan;
-    $idGradivo;
+    public $idClan;
+    public $idGradivo;
 
-    function izposodiGradivo($idGradivo){
-
+    function izposodiGradivo($idGradiva) : void{
+        //Update idClan then call izposodiGradivo of Gradivo
+        //calls Gradivo izposodi Gradivo, but that is not a good way to go about this, so it will be cut.
     }
     
     function prikaziPotrdilo($potrdilo){
@@ -55,14 +57,45 @@ class ZMUporabnikIzposodiGradivo{
 }
 
 class ZMKnjižnicar{
-    $idKnjiznicar;
+    public $idKnjiznicar;
+    protected $conn;
+
+    public function __construct(mysqli $conn) {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_start();
+        }
+        $this->conn = $conn;
+        $this->idKnjiznicar = (int)$_SESSION['user']['id'];
+    }
 
     function clanJeOdobren(){
 
     }
 
-    function skenirajGradivo($idGradivo){
+    function skenirajGradivo($idGradivo): int{
+        //Tukaj naj bi bila skenirana koda gradiva
+        //Simulacija da se skenira:
+        $ids = [];
+        $stmt = $this->conn->prepare("
+            SELECT k.idKnjiznice
+            FROM knjiznice AS k
+            JOIN gradiva   AS g ON g.idKnjiznice = k.idKnjiznice
+            WHERE g.idGradiva = ?
+        ");
+        $stmt->bind_param('i', $idGradivo);
+        $stmt->execute();
+        $res = $stmt->get_result();
 
+        while ($row = $res->fetch_assoc()) {
+            $ids[] = (int)$row['idKnjiznice'];
+        }
+        $res->free();
+        $stmt->close();
+
+        $randomKey = array_rand($ids);
+        $randomLibraryId = $ids[$randomKey];
+
+        return $randomLibraryId;
     }
 
     function podajPotrdilo($potrdilo){
@@ -131,7 +164,7 @@ class KIzposodiGradivo{
     function zabeležiTransakcijo($idClan, $idKnjiznicar, $idGradivo){
         
         $datumIzposoje  = date('Y-m-d');
-        $datumVracila   = date('Y-m-d', strtotime($dueInterval));
+        $datumVracila = date('Y-m-d', strtotime('+14 days'));
 
         $sql = "
             INSERT INTO izposoja(
@@ -203,6 +236,7 @@ class KIzposodiGradivo{
                 c.uporabniskoIme,
                 c.email,
                 g.ime AS naslov,
+                g.idGradiva,
                 z.datumIzposoje,
                 z.datumVracila
             FROM izposoja z
@@ -228,7 +262,7 @@ class KIzposodiGradivo{
         //     $mail->setFrom('no-reply@eknjiznica.si','eKnjiznica');
         //     $mail->addAddress($row['email'], $row['uporabniskoIme']);
         //     $mail->Subject = 'Potrdilo o izposoji gradiva';
-        //     $mail->Body    = "Spoštovani,\n\nv priponki vam pošiljamo potrdilo o vaši izposoji.\n\nLep pozdrav,\neKnjiznica";
+        //     $mail->Body    = "Spoštovani,\n\nv priponki vam pošiljamo potrdilo o vaši izposoji.\n\nLep pozdrav,\neKnjiznica.";
         //     $mail->addAttachment($pdfFile); //Used FPDF to create attachement.
         //     $mail->send();
         // } catch (Exception $e) {
@@ -239,16 +273,51 @@ class KIzposodiGradivo{
 }
 
 class Gradivo{
-    $ime;
-    $avtor;
-    $idGradiva;
-    $tipGradiva;
-    $razpoložljivost;
+    public $ime;
+    public $avtor;
+    public $idGradiva;
+    public $tipGradiva;
+    public $razpoložljivost;
+    protected $conn;
+
+    public function __construct(mysqli $conn) {
+        $this->conn = $conn;
+    }
+
+    function izposodiGradivo(int $idGradivo, int $idKnjiznice): bool {
+        $this->idGradivo = $idGradivo;
+
+        $sql = "
+            UPDATE razpolozljivost
+               SET steviloIzposojenih = steviloIzposojenih + 1
+             WHERE idGradiva   = ?
+               AND idKnjiznice = ?
+        ";
+
+        $stmt = $this->conn->prepare($sql);
+        if (! $stmt) {
+            error_log("Prepare failed: " . $this->conn->error);
+            return false;
+        }
+
+        $stmt->bind_param(
+            'ii',
+            $this->idGradivo,
+            $idKnjiznice
+        );
+
+        $ok = $stmt->execute();
+        if (! $ok) {
+            error_log("Execute failed: " . $stmt->error);
+        }
+        $stmt->close();
+        return $ok;
+    }
 }
 
 class LokacijaGradiva{
-    $idGradiva;
-    $stanje;
+    public $idGradiva;
+    public $stanje;
 
     function lokacijaGradiva ($idGradiva){
 
@@ -256,10 +325,10 @@ class LokacijaGradiva{
 }
 
 class Knjiznice{
-    $idKnjiznice;
-    $idKnjige;
-    $imeKnjiznice;
-    $lokacijaKnjiznice;
+    public $idKnjiznice;
+    public $idKnjige;
+    public $imeKnjiznice;
+    public $lokacijaKnjiznice;
 
     //za rezervacijo
     function knjiznicaGradivo ($idGradiva){
