@@ -50,7 +50,7 @@ if ($res = $conn->query("SELECT idKnjiznice, ime FROM knjiznice")) {
         <?php if (isset($_SESSION["user"])): ?>
             <a href="profil.php">Profile (<?= htmlspecialchars($_SESSION["user"]["ime"]) ?>)</a>
             <?php if (isset($_SESSION["user"]["tipUporabnika"])): ?>
-                <a href="zalozba.php">Zalozba</a>
+                <a class="active" href="zalozba.php">Zalozba</a>
             <?php endif; ?>
         <?php else: ?>
             <a href="prijava.php">Prijava / Registracija</a>

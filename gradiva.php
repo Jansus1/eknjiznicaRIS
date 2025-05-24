@@ -19,7 +19,8 @@ session_start();
             <h1>eKnjiznica <small>digitalna knjiznica</small></h1>
         </div>
     </a>
-    <div class="iskanje">
+<div class="iskanje">
+        <!-- <a class="active"href="#kjiznica">O knjižnici</a> to rata ko klikne gor (js da ga rederecta dol do tega odstavka-->
         <a href="index.php#onas">O nas</a>
         <a href="knjiznice.php">Lokacije</a>
         <a class="active" href="gradiva.php">Gradiva</a>
@@ -31,13 +32,17 @@ session_start();
         <?php else: ?>
             <a href="prijava.php">Prijava / Registracija</a>
         <?php endif; ?>
+        <?php if (isset($_SESSION["user"]["tipUporabnika"]) && $_SESSION["user"]["tipUporabnika"] === 2): ?>
+            <a href="izposoja.php">Izposoja</a>
+            <a href="izposoje.php">Izposoje</a>
+        <?php endif; ?>
         <div class="iskalnik">
             <form action="/action_page.php">
-              <input type="text" placeholder="Išči.." name="search">
-              <button type="submit"><i class="fa fa-search" aria-hidden="true"></i></button>
+                <input type="text" placeholder="Išči.." name="search">
+                <button type="submit"><i class="fa fa-search" aria-hidden="true"></i></button>
             </form>
-          </div>
-      </div>
+        </div>
+    </div>
 
 <?php
 include 'db_connect.php';
