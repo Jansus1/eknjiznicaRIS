@@ -68,7 +68,7 @@ if ($res = $conn->query("SELECT idClan, ime, priimek, izposoje FROM clan")) {
             <h1>eKnjiznica <small>digitalna knjiznica</small></h1>
         </div>
     </a>
-    <div class="iskanje">
+ <div class="iskanje">
         <!-- <a class="active"href="#kjiznica">O knjižnici</a> to rata ko klikne gor (js da ga rederecta dol do tega odstavka-->
         <a href="index.php#onas">O nas</a>
         <a href="knjiznice.php">Lokacije</a>
@@ -82,6 +82,7 @@ if ($res = $conn->query("SELECT idClan, ime, priimek, izposoje FROM clan")) {
             <a href="prijava.php">Prijava / Registracija</a>
         <?php endif; ?>
         <?php if (isset($_SESSION["user"]["tipUporabnika"]) && $_SESSION["user"]["tipUporabnika"] === 2): ?>
+            <a class="active" href="izposoja.php">Izposoja</a>
             <a href="izposoje.php">Izposoje</a>
         <?php endif; ?>
         <div class="iskalnik">

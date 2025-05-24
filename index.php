@@ -19,7 +19,7 @@ session_start();
     </a>
     <div class="iskanje">
         <!-- <a class="active"href="#kjiznica">O knjižnici</a> to rata ko klikne gor (js da ga rederecta dol do tega odstavka-->
-        <a href="index.php#onas">O nas</a>
+        <a class="active" href="index.php#onas">O nas</a>
         <a href="knjiznice.php">Lokacije</a>
         <a href="gradiva.php">Gradiva</a>
         <?php if (isset($_SESSION["user"])): ?>
