@@ -1,6 +1,6 @@
 <?php
 session_start();
-if (!(isset($_SESSION["user"])) || !(isset($_SESSION["user"]))=== 2) {
+if (!(isset($_SESSION["user"])) || !(isset($_SESSION["user"]["tipUporabnika"]))=== 2) {
     header("Location: prijava.php");
     exit;
 }
@@ -20,10 +20,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
 ) {
     $idClan    = (int)$_POST['user_id'];
     $idGradivo = (int)$_POST['material_id'];
-    $idKnjiznice = $zmKnjiznicar->skenirajGradivo($idGradivo);
+    $idKnjiznice = $zmKnjiznicar->skenirajGradivo($idGradivo); //Tukaj predpostavimo da obstaja prosto gradivo.
+    $clan = $kIzposodi->skenirajClanskoIzkaznico($idClan);
+    $idKnjiznicar = $_SESSION["user"]["id"];
     if ($gradivo->izposodiGradivo($idGradivo, $idKnjiznice)) {
-        $ok = true;
-    } else {
+        $ok = true; 
+        $kIzposodi->zabeležiTransakcijo($idClan, $idKnjiznicar, $idGradivo);
+    } 
+    else {
         $error = 'Prišlo je do napake pri izposoji.';
     }
 }
@@ -40,6 +44,7 @@ if ($res = $conn->query("SELECT idGradiva, ime FROM gradiva")) {
     }
     $res->free();
 }
+
 $users = [];
 if ($res = $conn->query("SELECT idClan, ime, priimek, izposoje FROM clan")) {
     while ($row = $res->fetch_assoc()) {
@@ -94,14 +99,14 @@ if ($res = $conn->query("SELECT idClan, ime, priimek, izposoje FROM clan")) {
     </div>
 
     <?php if ($ok): ?>
-        <div class="alert success">
-            Izposoja je bila uspešno zabeležena!
-        </div>
-        <?php elseif ($error): ?>
-        <div class="alert error">
-            <?= htmlspecialchars($error) ?>
-        </div>
+    <div class="alert success">
+        Izposoja je bila uspešno zabeležena!
+        <a href="?view=loans">Poglej izposoje</a>
+    </div>
+    <?php elseif ($error): ?>
+    <div class="alert error"><?= htmlspecialchars($error) ?></div>
     <?php endif; ?>
+
 
     <form method="POST">
         <div class="izposoja">
@@ -136,6 +141,44 @@ if ($res = $conn->query("SELECT idClan, ime, priimek, izposoje FROM clan")) {
                 <button type="submit">Potrdi izposojo</button>
         </div>
     </form>
+    <?php
+        if (isset($_GET['view']) && $_GET['view'] === 'loans') {
+            $stmt = $conn->query("
+            SELECT 
+                z.idIzposoja,
+                c.uporabniskoIme,
+                g.ime AS naslov,
+                DATE_FORMAT(z.datumIzposoje, '%Y-%m-%d') AS datumIzposoje
+            FROM izposoja z
+            JOIN clan c    ON z.idClan    = c.idClan
+            JOIN gradiva g ON z.idGradiva = g.idGradiva
+            ORDER BY z.datumIzposoje DESC
+            ");
+            $loans = $stmt->fetch_all(MYSQLI_ASSOC);
+            $stmt->close();
+            ?>
+
+            <h2>Trenutne izposoje</h2>
+            <table class="loans-table">
+            <thead>
+                <tr>
+                <th>ID</th><th>Uporabnik</th><th>Gradivo</th><th>Datum izposoje</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($loans as $row): ?>
+                <tr>
+                    <td><?= $row['idIzposoja'] ?></td>
+                    <td><?= htmlspecialchars($row['uporabniskoIme']) ?></td>
+                    <td><?= htmlspecialchars($row['naslov']) ?></td>
+                    <td><?= $row['datumIzposoje'] ?></td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+            </table>
+        <?php
+        }
+    ?>
 </body>
                         <!--Missing potrdilo, call to dnevnik. -->
 <script>

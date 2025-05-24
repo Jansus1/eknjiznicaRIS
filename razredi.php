@@ -5,14 +5,12 @@ require_once 'db_connect.php';
 //use PHPMailer\PHPMailer\PHPMailer;
 //use PHPMailer\PHPMailer\Exception;
 
-//Turn these publics to private!
-
 class Clan {
     private $idClan;
     private $ime;
     private $priimek;
     private $izposoje;
-    private static array $seznamClanov = [
+    private static $seznamClanov = [
         1 => ['ime' => 'Ana', 'priimek' => 'Novak', 'izposoje' => 2],
         2 => ['ime' => 'Boris', 'priimek' => 'Kranjc', 'izposoje' => 0],
         3 => ['ime' => 'Cvetka', 'priimek' => 'Zupančič', 'izposoje' => 5],
@@ -32,7 +30,7 @@ class Clan {
         $clan->izposoje = $podatki['izposoje'];
         return $clan;
     }
-}
+    
     public function vrniPodatkeOClan($idClan, $conn) : ?Clan {
         $this->idClan = $idClan;
 
@@ -68,11 +66,11 @@ class ZMUporabnikIzposodiGradivo{
     }
     
     function prikaziPotrdilo($potrdilo){
-
+        //Not implamented
     }
 
     function vrniRazlog($razlog){
-
+        //Not implamented
     }
 }
 
@@ -89,7 +87,7 @@ class ZMKnjižnicar{
     }
 
     function clanJeOdobren(){
-
+        //implamented elsewhere
     }
 
     function skenirajGradivo($idGradivo): int{
@@ -119,18 +117,23 @@ class ZMKnjižnicar{
     }
 
     function podajPotrdilo($potrdilo){
-
+        //Implamented elsewhere
     }
 
     function potrdiPoterdilo(){
-
+        //Implamented elsewhere
     }
-
 }
 
 class KIzposodiGradivo{
     private $gradivo;
     private $clan;
+    protected $conn;
+
+    public function __construct(mysqli $conn) {
+        $this->conn = $conn;
+    }
+
 
     function poisciGradivo($idGradivo){
         $sql = "
@@ -182,18 +185,21 @@ class KIzposodiGradivo{
     }
 
     function skenirajClanskoIzkaznico($izkaznica): ?Clan {
-        // Simulacija: iz izkaznice "preberemo" ID člana (npr. 2)
-        $id = 102;
+        $id = 2;
 
         // Pridobimo člana iz statične zbirke
         $clan = Clan::vrniClana($id);
 
         if ($clan === null) {
             echo "Član s tem ID-jem ne obstaja.\n";
+            return $clan;
         }
+
+        $this->clan=$clan;
 
         return $clan;
     }
+
     function zabeležiTransakcijo($idClan, $idKnjiznicar, $idGradivo) : void{
         
         $datumIzposoje  = date('Y-m-d');
@@ -210,8 +216,8 @@ class KIzposodiGradivo{
             (?,?,?,?,?)
         ";
 
-        if (! $stmt = $conn->prepare($sql)) {
-            return null;
+        if (! $stmt = $this->conn->prepare($sql)) {
+            return;
         }
 
         $stmt->bind_param(
@@ -225,7 +231,18 @@ class KIzposodiGradivo{
 
         $stmt->execute();
         $stmt->close();
-        return null;
+
+        $sql = "UPDATE clan SET izposoje=izposoje+1;
+        WHERE idClan = ?";
+
+        if (! $stmt = $this->conn->prepare($sql)) {
+            return;
+        }
+
+        $stmt->bind_param('i',$idClan);
+        $stmt->execute();
+        $stmt->close();
+        return;
     }
 
     function odobriClana($izposoje) : bool{
