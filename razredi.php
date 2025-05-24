@@ -8,12 +8,12 @@ require_once 'db_connect.php';
 //Turn these publics to private!
 
 class Clan {
-    public $idClan;
-    public $ime;
-    public $priimek;
-    public $izposoje;
+    private $idClan;
+    private $ime;
+    private $priimek;
+    private $izposoje;
 
-    public function vrniPodatkeOClan($idClan, $conn) {
+    public function vrniPodatkeOClan($idClan, $conn) : ?Clan {
         $this->idClan = $idClan;
 
         $stmt = $conn->prepare(
@@ -27,10 +27,10 @@ class Clan {
                 $this->ime = $ime;
                 $this->priimek = $priimek;
                 $this->izposoje = $izposoje;
-                return true;
+                return $this;
             }
         }
-        return false;
+        return null;
     }
 
     function vrniSteviloIzposoj(){
@@ -39,8 +39,8 @@ class Clan {
 }
 
 class ZMUporabnikIzposodiGradivo{
-    public $idClan;
-    public $idGradivo;
+    private $idClan;
+    private $idGradivo;
 
     function izposodiGradivo($idGradiva) : void{
         //Update idClan then call izposodiGradivo of Gradivo
@@ -57,7 +57,7 @@ class ZMUporabnikIzposodiGradivo{
 }
 
 class ZMKnjižnicar{
-    public $idKnjiznicar;
+    private $idKnjiznicar;
     protected $conn;
 
     public function __construct(mysqli $conn) {
@@ -109,6 +109,9 @@ class ZMKnjižnicar{
 }
 
 class KIzposodiGradivo{
+    private $gradivo;
+    private $clan;
+
     function poisciGradivo($idGradivo){
         $sql = "
                 SELECT 
@@ -150,6 +153,7 @@ class KIzposodiGradivo{
             $gradivo->avtor = trim($f_imeAvtor . ' ' . $f_priimekAvtor);
             $gradivo->razpolozljivost = $f_steviloGradiv;
             $stmt->close();
+            $this->gradivo = $gradivo;
             return $gradivo;
         }
 
@@ -157,11 +161,13 @@ class KIzposodiGradivo{
         return null;
     }
 
-    function skenirajClanskoIzkaznico(){
-        return 1; //No clue how to do this here?
+    function skenirajClanskoIzkaznico($izkaznica) : Clan{
+        $this->clan = new Clan();
+        //No clue how to do this here?
+        return $this->clan; 
     }
 
-    function zabeležiTransakcijo($idClan, $idKnjiznicar, $idGradivo){
+    function zabeležiTransakcijo($idClan, $idKnjiznicar, $idGradivo) : void{
         
         $datumIzposoje  = date('Y-m-d');
         $datumVracila = date('Y-m-d', strtotime('+14 days'));
@@ -195,7 +201,7 @@ class KIzposodiGradivo{
         return null;
     }
 
-    function odobriClana($izposoje){
+    function odobriClana($izposoje) : bool{
         if($izposoje < 10){
             return true;
         }
@@ -204,7 +210,7 @@ class KIzposodiGradivo{
         }
     }
 
-    function izdajPotrdilo(array $potrdilo) {
+    function izdajPotrdilo(array $potrdilo) : string {
         echo '<div class="potrdilo-container">';
         echo '<h2>Potrdilo o izposoji</h2>';
         echo '<p><strong>ID izposoje:</strong> '      . htmlspecialchars($potrdilo['idIzposoja'])   . '</p>';
@@ -226,10 +232,10 @@ class KIzposodiGradivo{
         echo '</form>';
         echo '</div>';
         echo '</div>';
-        return null;
+        return "This string can be a packed echo!";
     }
 
-    function posliEPotrdilo(int $idClan){
+    function posliEPotrdilo(int $idClan) : bool{
         $stmt = $conn->prepare("
             SELECT 
                 z.idIzposoja,
@@ -268,16 +274,16 @@ class KIzposodiGradivo{
         // } catch (Exception $e) {
         //     error_log("Mailer error: " . $mail->ErrorInfo);
         // }
-        return null;
+        return true;
     }
 }
 
 class Gradivo{
-    public $ime;
-    public $avtor;
-    public $idGradiva;
-    public $tipGradiva;
-    public $razpoložljivost;
+    private $ime;
+    private $avtor;
+    private $idGradiva;
+    private $tipGradiva;
+    private $razpoložljivost;
     protected $conn;
 
     public function __construct(mysqli $conn) {
@@ -316,23 +322,56 @@ class Gradivo{
 }
 
 class LokacijaGradiva{
-    public $idGradiva;
-    public $stanje;
+    private $idGradiva;
+    private $stanje;
+    protected $conn;
 
-    function lokacijaGradiva ($idGradiva){
+    public function __construct(mysqli $conn) {
+        $this->conn = $conn;
+    }
 
+    function lokacijaGradiva ($idGradiva) : ?Knjiznice{
+        $sql = "
+            SELECT k.*
+            FROM razpolozljivost r
+            JOIN knjiznice    k ON r.idKnjiznice = k.idKnjiznice
+            WHERE r.idGradiva = ?
+            LIMIT 1
+        ";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param('i', $idGradiva);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        if ($row = $res->fetch_assoc()) {
+            $stmt->close();
+            return new Knjiznice($row, $this->conn);
+        }
+        $stmt->close();
+        return null;
     }
 }
 
 class Knjiznice{
-    public $idKnjiznice;
-    public $idKnjige;
-    public $imeKnjiznice;
-    public $lokacijaKnjiznice;
+    private $idKnjiznice;
+    private $imeKnjiznice;
+    private $naslov;
+    private $telefon;
+    private $email;
+    private $opis;
+
+    public function __construct(array $data) {
+        $this->conn = $conn;
+        $this->idKnjiznice = (int)$data['idKnjiznice'];
+        $this->imeKnjiznice = $data['ime'];
+        $this->naslov = $data['naslov'];
+        $this->telefon = $data['telefon'];
+        $this->email = $data['email'];
+        $this->opis = $data['opis'];
+    }
 
     //za rezervacijo
-    function knjiznicaGradivo ($idGradiva){
-        $this->idKnjige = $idGradiva;
+    function knjiznicaGradivo ($idGradiva) : Knjiznice{
+
     }
 }
 ?>

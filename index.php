@@ -30,6 +30,10 @@ session_start();
         <?php else: ?>
             <a href="prijava.php">Prijava / Registracija</a>
         <?php endif; ?>
+        <?php if (isset($_SESSION["user"]["tipUporabnika"]) && $_SESSION["user"]["tipUporabnika"] === 2): ?>
+            <a href="izposoja.php">Izposoja</a>
+            <a href="izposoje.php">Izposoje</a>
+        <?php endif; ?>
         <div class="iskalnik">
             <form action="/action_page.php">
                 <input type="text" placeholder="Išči.." name="search">
