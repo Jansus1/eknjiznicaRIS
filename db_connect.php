@@ -1,18 +1,12 @@
 <?php
-$serverName = "tcp:eknjiznica2.database.windows.net,1433";
-$connectionOptions = array(
-    "UID" => "CloudSA29084aa0",
-    "PWD" => "{your_password_here}",  
-    "Database" => "eknjiznica2",
-    "LoginTimeout" => 30,
-    "Encrypt" => true,
-    "TrustServerCertificate" => false
-);
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "eknjiznica2"; 
+$conn = new mysqli($servername, $username, $password, $dbname);
 
-$conn = sqlsrv_connect($serverName, $connectionOptions);
-
-if ($conn === false) {
-    die(print_r(sqlsrv_errors(), true));
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
 }
-// echo "Connected successfully to DB";
+#echo "Connected successfully";
 ?>
