@@ -8,10 +8,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_SESSION["user"]) && $_SESSI
     $stevilo = intval($_POST['stevilo']);
     $action = $_POST['action'];
 
-    // preveri, če vnos že obstaja
     $check = mysqli_query($conn, "SELECT * FROM razpolozljivost WHERE idGradiva = $idGradiva AND idKnjiznice = $idKnjiznice");
     if (mysqli_num_rows($check) > 0) {
-        // vnos obstaja
         if ($action === 'dodaj') {
             mysqli_query($conn, "UPDATE razpolozljivost SET steviloGradiv = steviloGradiv + $stevilo WHERE idGradiva = $idGradiva AND idKnjiznice = $idKnjiznice");
         } elseif ($action === 'zbriši') {
@@ -19,7 +17,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_SESSION["user"]) && $_SESSI
         }
     }
 
-    header("Location: knjiga.php"); // ali drug URL
+    header("Location: knjiga.php");
     exit;
 }
 ?>

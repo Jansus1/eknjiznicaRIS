@@ -153,10 +153,8 @@ if (mysqli_num_rows($result) > 0) {
                     echo "<label for='stevilo'>Število enot:</label>";
                     echo "<input type='number' name='stevilo' value='1' required min='1' style='width: 60px;'>";
 
-                    // Gumb dodaj
                     echo "<button type='submit' name='action' value='dodaj' class='btn btn-add' style='margin-left: 5px;'>Dodaj</button>";
 
-                    // Gumb zbriši
                     echo "<button type='submit' name='action' value='zbriši' class='btn btn-remove' style='margin-left: 5px;'>Zbriši</button>";
                     echo "</form>";
                 echo "</div>";
