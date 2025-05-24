@@ -12,7 +12,27 @@ class Clan {
     private $ime;
     private $priimek;
     private $izposoje;
+    private static array $seznamClanov = [
+        1 => ['ime' => 'Ana', 'priimek' => 'Novak', 'izposoje' => 2],
+        2 => ['ime' => 'Boris', 'priimek' => 'Kranjc', 'izposoje' => 0],
+        3 => ['ime' => 'Cvetka', 'priimek' => 'Zupančič', 'izposoje' => 5],
+    ];
 
+    // Statična metoda za pridobivanje člana po ID
+    public static function vrniClana(int $id): ?Clan {
+        if (!isset(self::$seznamClanov[$id])) {
+            return null;
+        }
+
+        $podatki = self::$seznamClanov[$id];
+        $clan = new self();
+        $clan->idClan = $id;
+        $clan->ime = $podatki['ime'];
+        $clan->priimek = $podatki['priimek'];
+        $clan->izposoje = $podatki['izposoje'];
+        return $clan;
+    }
+}
     public function vrniPodatkeOClan($idClan, $conn) : ?Clan {
         $this->idClan = $idClan;
 
@@ -161,12 +181,19 @@ class KIzposodiGradivo{
         return null;
     }
 
-    function skenirajClanskoIzkaznico($izkaznica) : Clan{
-        $this->clan = new Clan();
-        //No clue how to do this here?
-        return $this->clan; 
-    }
+    function skenirajClanskoIzkaznico($izkaznica): ?Clan {
+        // Simulacija: iz izkaznice "preberemo" ID člana (npr. 2)
+        $id = 102;
 
+        // Pridobimo člana iz statične zbirke
+        $clan = Clan::vrniClana($id);
+
+        if ($clan === null) {
+            echo "Član s tem ID-jem ne obstaja.\n";
+        }
+
+        return $clan;
+    }
     function zabeležiTransakcijo($idClan, $idKnjiznicar, $idGradivo) : void{
         
         $datumIzposoje  = date('Y-m-d');
